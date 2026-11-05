@@ -1,0 +1,35 @@
+from fastapi import FastAPI
+from dotenv import load_dotenv
+
+from fastapi.middleware.cors import CORSMiddleware
+
+load_dotenv()
+
+app = FastAPI(
+    title="ClaimGraph – Claim Verifier API",
+    description="API for scientific claim extraction, verification, and graph-based analysis.",
+    version="0.1.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---------------------------------------------------------------------------
+# Routers
+# ---------------------------------------------------------------------------
+from app.api.routes import verify as verify_router  # noqa: E402
+from app.api.routes import topics as topics_router  # noqa: E402
+
+app.include_router(verify_router.router, prefix="/api/v1")
+app.include_router(topics_router.router, prefix="/api/v1")
+
+
+@app.get("/health", tags=["Health"])
+async def health_check():
+    """Liveness probe."""
+    return {"status": "ok"}
